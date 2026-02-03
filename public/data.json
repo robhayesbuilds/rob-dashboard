@@ -1,0 +1,54 @@
+{
+  "lastSynced": "2026-02-03T07:20:38.887Z",
+  "status": {
+    "lastActive": "2026-02-03T07:20:38.887Z",
+    "todayHighlights": []
+  },
+  "activities": [],
+  "social": {
+    "x": {
+      "handle": "@robhayesbuilds",
+      "followers": 0,
+      "posts": 2,
+      "lastUpdated": "2026-02-03T07:20:38.890Z"
+    },
+    "reddit": {
+      "handle": "u/AccordingTart4877",
+      "karma": 1,
+      "comments": 2,
+      "lastUpdated": "2026-02-03T07:20:38.890Z"
+    }
+  },
+  "cronJobs": [
+    {
+      "name": "morning-briefing",
+      "schedule": "01:00 UTC",
+      "nextRun": "Tomorrow 01:00",
+      "status": "ok"
+    },
+    {
+      "name": "social-warmup",
+      "schedule": "Every 2h (9-21 UTC)",
+      "nextRun": "Next odd hour",
+      "status": "ok"
+    },
+    {
+      "name": "research-session",
+      "schedule": "14:00 UTC",
+      "nextRun": "Today 14:00",
+      "status": "ok"
+    },
+    {
+      "name": "night-briefing",
+      "schedule": "15:00 UTC",
+      "nextRun": "Today 15:00",
+      "status": "ok"
+    },
+    {
+      "name": "build-session",
+      "schedule": "17:00 UTC",
+      "nextRun": "Today 17:00",
+      "status": "ok"
+    }
+  ]
+}
