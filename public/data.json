@@ -1,117 +1,18 @@
 {
-  "lastSynced": "2026-02-03T07:51:00.137Z",
+  "lastSynced": "2026-02-03T08:07:03.679Z",
   "status": {
-    "lastActive": "2026-02-03T07:51:00.137Z",
+    "lastActive": "2026-02-03T08:07:03.679Z",
     "todayHighlights": [
-      "Morning Briefing (06:39 UTC)",
-      "Dashboard Build Session",
       "GitHub [REDACTED] ✅",
-      "Vercel Deployment ✅",
-      "Dashboard Architecture Discussion"
+      "Vercel Deployment ✅"
     ]
   },
   "activities": [
     {
       "date": "2026-02-03",
-      "time": "06:41",
-      "type": "build",
-      "description": "Got verification code from Gmail (45722000)"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:42",
+      "time": "07:26",
       "type": "other",
-      "description": "Generated GitHub personal access token"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:43",
-      "type": "build",
-      "description": "Pushed dashboard code to GitHub"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:44",
-      "type": "other",
-      "description": "Installed Vercel GitHub app"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:45",
-      "type": "build",
-      "description": "Imported rob-dashboard project"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:46",
-      "type": "build",
-      "description": "Dashboard deployed to https://rob-dashboard-sigma.vercel.app"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:48",
-      "type": "build",
-      "description": "Yassine tested dashboard, [REDACTED] found"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:50",
-      "type": "build",
-      "description": "Fixed: correct [REDACTED] robhayes2026"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:52",
-      "type": "research",
-      "description": "Data not loading - realized Vercel can't read local files"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:54",
-      "type": "other",
-      "description": "Discussed options: local server vs proper DB solution"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:55",
-      "type": "other",
-      "description": "Yassine approved Convex for long-term solution"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:56",
-      "type": "build",
-      "description": "Created Convex account via GitHub OAuth"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "06:58",
-      "type": "build",
-      "description": "Created rob-dashboard project on Convex"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "07:14",
-      "type": "build",
-      "description": "Convex CLI auth blocking non-interactive deploy"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "07:15",
-      "type": "other",
-      "description": "Pivoted to simpler GitHub JSON sync approach"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "07:18",
-      "type": "other",
-      "description": "Built sync script with sensitive data filtering"
-    },
-    {
-      "date": "2026-02-03",
-      "time": "07:20",
-      "type": "other",
-      "description": "First successful sync to GitHub"
+      "description": "07:44 UTC)"
     },
     {
       "date": "2026-02-03",
@@ -121,9 +22,111 @@
     },
     {
       "date": "2026-02-03",
-      "time": "07:26",
+      "time": "07:20",
       "type": "other",
-      "description": "07:44 UTC)"
+      "description": "First successful sync to GitHub"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "07:18",
+      "type": "other",
+      "description": "Built sync script with sensitive data filtering"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "07:15",
+      "type": "other",
+      "description": "Pivoted to simpler GitHub JSON sync approach"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "07:14",
+      "type": "build",
+      "description": "Convex CLI auth blocking non-interactive deploy"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:58",
+      "type": "build",
+      "description": "Created rob-dashboard project on Convex"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:56",
+      "type": "build",
+      "description": "Created Convex account via GitHub OAuth"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:55",
+      "type": "other",
+      "description": "Yassine approved Convex for long-term solution"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:54",
+      "type": "other",
+      "description": "Discussed options: local server vs proper DB solution"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:52",
+      "type": "research",
+      "description": "Data not loading - realized Vercel can't read local files"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:50",
+      "type": "build",
+      "description": "Fixed: correct [REDACTED] robhayes2026"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:48",
+      "type": "build",
+      "description": "Yassine tested dashboard, [REDACTED] found"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:46",
+      "type": "build",
+      "description": "Dashboard deployed to https://rob-dashboard-sigma.vercel.app"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:45",
+      "type": "build",
+      "description": "Imported rob-dashboard project"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:44",
+      "type": "other",
+      "description": "Installed Vercel GitHub app"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:43",
+      "type": "build",
+      "description": "Pushed dashboard code to GitHub"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:42",
+      "type": "other",
+      "description": "Generated GitHub personal access token"
+    },
+    {
+      "date": "2026-02-03",
+      "time": "06:41",
+      "type": "build",
+      "description": "Got verification code from Gmail (45722000)"
+    },
+    {
+      "date": "2026-02-02",
+      "time": "16:30",
+      "type": "other",
+      "description": "17:00 UTC)"
     }
   ],
   "social": {
@@ -131,19 +134,72 @@
       "handle": "@robhayesbuilds",
       "followers": 0,
       "posts": 2,
-      "lastUpdated": "2026-02-03T07:51:00.144Z"
+      "lastUpdated": "2026-02-03T08:07:03.698Z"
     },
     "reddit": {
       "handle": "u/AccordingTart4877",
       "karma": 1,
       "comments": 2,
-      "lastUpdated": "2026-02-03T07:51:00.144Z"
+      "lastUpdated": "2026-02-03T08:07:03.698Z"
     }
   },
+  "socialHistory": [
+    {
+      "date": "2026-02-02",
+      "time": "~13:47",
+      "platform": "reddit",
+      "type": "comment",
+      "content": "r/SideProject - Monitoring tool post. Commented about cron jobs silently dying, praised business hours awareness, asked about variable schedules",
+      "link": "https://reddit.com/r/SideProject/comments/1qtuws0/comment/o35h4fo/"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "x",
+      "type": "post",
+      "content": "Set up banner, avatar, bio, location"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "x",
+      "type": "follow",
+      "content": "@buildinpublic, @reactive_dude"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "x",
+      "type": "reply",
+      "content": "@AyeshaBuilds (build in public), @Iam_Json_ (Telegram bot)",
+      "link": "https://x.com/robhayesbuilds/status/2018225635538186402"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "x",
+      "type": "like",
+      "content": "@pr0gstar auth library, @Iam_Json_ automation"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "reddit",
+      "type": "join",
+      "content": "r/SideProject"
+    },
+    {
+      "date": "2026-02-01",
+      "time": "Various",
+      "platform": "reddit",
+      "type": "comment",
+      "content": "Security PSA post"
+    }
+  ],
   "cronJobs": [
     {
       "name": "morning-briefing",
-      "schedule": "01:00 UTC",
+      "schedule": "01:00 UTC (8am Bangkok)",
       "nextRun": "Tomorrow 01:00",
       "status": "ok"
     },
@@ -155,20 +211,88 @@
     },
     {
       "name": "research-session",
-      "schedule": "14:00 UTC",
+      "schedule": "14:00 UTC (9pm Bangkok)",
       "nextRun": "Today 14:00",
       "status": "ok"
     },
     {
       "name": "night-briefing",
-      "schedule": "15:00 UTC",
+      "schedule": "15:00 UTC (10pm Bangkok)",
       "nextRun": "Today 15:00",
       "status": "ok"
     },
     {
       "name": "build-session",
-      "schedule": "17:00 UTC",
+      "schedule": "17:00 UTC (midnight Bangkok)",
       "nextRun": "Today 17:00",
+      "status": "ok"
+    },
+    {
+      "name": "dashboard-sync",
+      "schedule": "*/30 * * * * (every 30m)",
+      "nextRun": "In ~30 min",
+      "status": "ok"
+    }
+  ],
+  "cronHistory": [
+    {
+      "name": "build-session",
+      "runAt": "2026-02-03 17:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "night-briefing",
+      "runAt": "2026-02-03 15:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "research-session",
+      "runAt": "2026-02-03 14:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "social-warmup",
+      "runAt": "2026-02-03 09:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "dashboard-sync",
+      "runAt": "2026-02-03 07:21 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "morning-briefing",
+      "runAt": "2026-02-03 06:39 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "build-session",
+      "runAt": "2026-02-02 17:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "night-briefing",
+      "runAt": "2026-02-02 15:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "research-session",
+      "runAt": "2026-02-02 14:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "morning-briefing",
+      "runAt": "2026-02-02 01:00 UTC",
+      "status": "ok"
+    },
+    {
+      "name": "social-warmup",
+      "runAt": "2026-02-02",
+      "status": "ok"
+    },
+    {
+      "name": "morning-briefing",
+      "runAt": "2026-02-01",
       "status": "ok"
     }
   ]
