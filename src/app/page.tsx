@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 
 interface Activity {
   date: string;
@@ -29,23 +35,91 @@ interface DashboardData {
   }>;
 }
 
-export default function Home() {
+function StatusDot({ status }: { status: string }) {
+  const colors = {
+    ok: 'bg-emerald-500',
+    error: 'bg-red-500',
+    pending: 'bg-amber-500',
+  };
+  return (
+    <span className={`inline-block w-2 h-2 rounded-full ${colors[status as keyof typeof colors] || colors.pending} animate-pulse`} />
+  );
+}
+
+function StatCard({ title, value, subtitle, icon, trend }: { 
+  title: string; 
+  value: string | number; 
+  subtitle?: string; 
+  icon: React.ReactNode;
+  trend?: 'up' | 'down' | 'neutral';
+}) {
+  return (
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-border transition-colors">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+        <div className="text-muted-foreground">{icon}</div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold tracking-tight">{value}</div>
+        {subtitle && (
+          <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ActivityItem({ activity }: { activity: Activity }) {
+  const typeConfig = {
+    social: { icon: '📱', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
+    build: { icon: '🔨', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+    research: { icon: '📚', color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
+    other: { icon: '📝', color: 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20' },
+  };
+  const config = typeConfig[activity.type as keyof typeof typeConfig] || typeConfig.other;
+  
+  return (
+    <div className="flex items-start gap-4 p-4 rounded-lg bg-card/30 hover:bg-card/50 transition-colors group">
+      <div className="text-2xl">{config.icon}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-foreground leading-relaxed">{activity.description}</p>
+        <div className="flex items-center gap-2 mt-2">
+          <Badge variant="outline" className={`text-xs ${config.color}`}>
+            {activity.type}
+          </Badge>
+          <span className="text-xs text-muted-foreground">{activity.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CronJobRow({ job }: { job: { name: string; schedule: string; nextRun: string; status: string } }) {
+  return (
+    <div className="flex items-center justify-between p-4 rounded-lg bg-card/30 hover:bg-card/50 transition-colors">
+      <div className="flex items-center gap-3">
+        <StatusDot status={job.status} />
+        <div>
+          <p className="font-medium text-sm">{job.name}</p>
+          <p className="text-xs text-muted-foreground font-mono">{job.schedule}</p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p className="text-sm text-muted-foreground">{job.nextRun}</p>
+        <Badge variant={job.status === 'ok' ? 'default' : 'destructive'} className="mt-1 text-xs">
+          {job.status}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState('overview');
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'robhayes2026') {
-      setIsAuthenticated(true);
-      localStorage.setItem('rob-dashboard-auth', 'true');
-    } else {
-      alert('Wrong password');
-    }
-  };
 
   useEffect(() => {
     if (localStorage.getItem('rob-dashboard-auth') === 'true') {
@@ -68,55 +142,67 @@ export default function Home() {
     }
   }, [isAuthenticated]);
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'robhayes2026') {
+      setIsAuthenticated(true);
+      localStorage.setItem('rob-dashboard-auth', 'true');
+    } else {
+      alert('Wrong password');
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('rob-dashboard-auth');
     setIsAuthenticated(false);
   };
 
+  // Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <form onSubmit={handleLogin} className="bg-gray-800/50 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-gray-700/50 w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="text-5xl mb-4">🤖</div>
-            <h1 className="text-3xl font-bold text-white">Rob Hayes</h1>
-            <p className="text-gray-400 mt-2">AI Builder Dashboard</p>
-          </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-            className="w-full p-4 rounded-xl bg-gray-900/50 text-white border border-gray-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all mb-4"
-          />
-          <button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl font-semibold hover:from-indigo-500 hover:to-purple-500 transition-all shadow-lg shadow-indigo-500/25"
-          >
-            Access Dashboard
-          </button>
-        </form>
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
+        <Card className="w-full max-w-md relative bg-card/80 backdrop-blur-xl border-border/50">
+          <CardHeader className="text-center space-y-4">
+            <Avatar className="w-20 h-20 mx-auto ring-2 ring-primary/20">
+              <AvatarImage src="https://api.dicebear.com/7.x/bottts/svg?seed=rob" />
+              <AvatarFallback className="bg-primary text-primary-foreground text-2xl">RH</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle className="text-2xl">Rob Hayes</CardTitle>
+              <CardDescription>AI SaaS Builder Dashboard</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className="w-full px-4 py-3 rounded-lg bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground placeholder:text-muted-foreground"
+              />
+              <Button type="submit" className="w-full" size="lg">
+                Access Dashboard
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  // Loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin text-5xl mb-4">⚡</div>
-          <p className="text-gray-400">Loading dashboard...</p>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="text-5xl animate-bounce">⚡</div>
+          <p className="text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
   }
-
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'social', label: 'Social', icon: '📱' },
-    { id: 'activity', label: 'Activity', icon: '📝' },
-    { id: 'cron', label: 'Cron Jobs', icon: '⏰' },
-  ];
 
   const today = new Date().toISOString().split('T')[0];
   const todayActivities = data?.activities.filter(a => a.date === today) || [];
@@ -124,291 +210,311 @@ export default function Home() {
   const buildActivities = todayActivities.filter(a => a.type === 'build');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-background">
+      {/* Background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5 pointer-events-none" />
+      
       {/* Header */}
-      <header className="bg-gray-800/30 backdrop-blur-xl border-b border-gray-700/50 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">🤖</span>
-            <div>
-              <h1 className="text-xl font-bold text-white">Rob Hayes</h1>
-              <p className="text-xs text-gray-400">AI SaaS Builder</p>
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-10 h-10 ring-2 ring-primary/20">
+                <AvatarImage src="https://api.dicebear.com/7.x/bottts/svg?seed=rob" />
+                <AvatarFallback className="bg-primary text-primary-foreground">RH</AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="font-semibold">Rob Hayes</h1>
+                <p className="text-xs text-muted-foreground">AI Builder</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {data?.lastSynced && (
-              <span className="text-xs text-gray-500">
-                Synced: {new Date(data.lastSynced).toLocaleTimeString()}
-              </span>
-            )}
-            <button 
-              onClick={handleLogout}
-              className="text-gray-400 hover:text-white transition-colors text-sm"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-4">
+              {data?.lastSynced && (
+                <span className="text-xs text-muted-foreground hidden sm:block">
+                  Synced {new Date(data.lastSynced).toLocaleTimeString()}
+                </span>
+              )}
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex gap-2 bg-gray-800/30 p-1 rounded-xl w-fit">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
-                activeTab === tab.id 
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/25' 
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-              }`}
-            >
-              <span>{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 pb-8">
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
         {error && (
-          <div className="bg-red-500/10 border border-red-500/50 rounded-xl p-4 mb-6 text-red-400">
-            Error: {error}
-          </div>
+          <Card className="mb-6 border-destructive/50 bg-destructive/10">
+            <CardContent className="py-4">
+              <p className="text-destructive text-sm">Error: {error}</p>
+            </CardContent>
+          </Card>
         )}
 
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Status Card */}
-            <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <span>⚡</span> Status
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Last Active</span>
-                  <span className="text-white">
-                    {data?.status?.lastActive 
-                      ? new Date(data.status.lastActive).toLocaleTimeString() 
-                      : 'Unknown'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Today&apos;s Activities</span>
-                  <span className="text-white">{todayActivities.length}</span>
-                </div>
-              </div>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="bg-muted/50 p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-background">
+              📊 Overview
+            </TabsTrigger>
+            <TabsTrigger value="social" className="data-[state=active]:bg-background">
+              📱 Social
+            </TabsTrigger>
+            <TabsTrigger value="activity" className="data-[state=active]:bg-background">
+              📝 Activity
+            </TabsTrigger>
+            <TabsTrigger value="cron" className="data-[state=active]:bg-background">
+              ⏰ Cron
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Activities Today"
+                value={todayActivities.length}
+                subtitle="Total logged activities"
+                icon={<span className="text-xl">📊</span>}
+              />
+              <StatCard
+                title="Social Posts"
+                value={socialActivities.length}
+                subtitle="X + Reddit engagement"
+                icon={<span className="text-xl">📱</span>}
+              />
+              <StatCard
+                title="Build Tasks"
+                value={buildActivities.length}
+                subtitle="Code & development"
+                icon={<span className="text-xl">🔨</span>}
+              />
+              <StatCard
+                title="Active Crons"
+                value={data?.cronJobs?.length || 0}
+                subtitle="Scheduled jobs"
+                icon={<span className="text-xl">⏰</span>}
+              />
             </div>
 
-            {/* Social Stats */}
-            <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <span>📱</span> Social
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">𝕏</span>
-                    <div>
-                      <p className="text-white font-medium">{data?.social?.x?.handle || '@robhayesbuilds'}</p>
-                      <p className="text-xs text-gray-400">{data?.social?.x?.posts || 0} posts</p>
-                    </div>
-                  </div>
-                  <span className="text-indigo-400 font-bold">{data?.social?.x?.followers || 0}</span>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🔴</span>
-                    <div>
-                      <p className="text-white font-medium">{data?.social?.reddit?.handle || 'u/AccordingTart4877'}</p>
-                      <p className="text-xs text-gray-400">{data?.social?.reddit?.comments || 0} comments</p>
-                    </div>
-                  </div>
-                  <span className="text-orange-400 font-bold">{data?.social?.reddit?.karma || 0} karma</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Today's Highlights */}
-            <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <span>✨</span> Today&apos;s Highlights
-              </h3>
-              {data?.status?.todayHighlights && data.status.todayHighlights.length > 0 ? (
-                <ul className="space-y-2">
-                  {data.status.todayHighlights.map((h, i) => (
-                    <li key={i} className="text-gray-300 text-sm flex items-start gap-2">
-                      <span className="text-indigo-400">•</span>
-                      {h}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500 text-sm">No highlights yet today</p>
-              )}
-            </div>
-
-            {/* Quick Stats */}
-            <div className="bg-gradient-to-br from-indigo-600/20 to-purple-600/20 backdrop-blur-xl rounded-2xl p-6 border border-indigo-500/30 md:col-span-2 lg:col-span-3">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-white">{todayActivities.length}</p>
-                  <p className="text-gray-400 text-sm">Activities Today</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-indigo-400">{socialActivities.length}</p>
-                  <p className="text-gray-400 text-sm">Social Posts</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-purple-400">{buildActivities.length}</p>
-                  <p className="text-gray-400 text-sm">Build Tasks</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-4xl font-bold text-green-400">{data?.cronJobs?.length || 0}</p>
-                  <p className="text-gray-400 text-sm">Active Crons</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'social' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* X Card */}
-              <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-                <div className="flex items-center gap-4 mb-6">
-                  <span className="text-4xl">𝕏</span>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">Twitter/X</h3>
-                    <p className="text-gray-400">{data?.social?.x?.handle}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-                    <p className="text-3xl font-bold text-white">{data?.social?.x?.followers || 0}</p>
-                    <p className="text-gray-400 text-sm">Followers</p>
-                  </div>
-                  <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-                    <p className="text-3xl font-bold text-white">{data?.social?.x?.posts || 0}</p>
-                    <p className="text-gray-400 text-sm">Posts/Replies</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Reddit Card */}
-              <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-                <div className="flex items-center gap-4 mb-6">
-                  <span className="text-4xl">🔴</span>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">Reddit</h3>
-                    <p className="text-gray-400">{data?.social?.reddit?.handle}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-                    <p className="text-3xl font-bold text-white">{data?.social?.reddit?.karma || 0}</p>
-                    <p className="text-gray-400 text-sm">Karma</p>
-                  </div>
-                  <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-                    <p className="text-3xl font-bold text-white">{data?.social?.reddit?.comments || 0}</p>
-                    <p className="text-gray-400 text-sm">Comments</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Social Activity Feed */}
-            <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-              <h3 className="text-lg font-semibold text-white mb-4">Recent Social Activity</h3>
-              {socialActivities.length > 0 ? (
-                <div className="space-y-3">
-                  {socialActivities.map((activity, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 bg-gray-900/50 rounded-xl">
-                      <span className="text-xl">{activity.platform === 'reddit' ? '🔴' : '𝕏'}</span>
-                      <div>
-                        <p className="text-white">{activity.description}</p>
-                        <p className="text-xs text-gray-500">{activity.time}</p>
+            {/* Two Column Layout */}
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Social Stats */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <span>📱</span> Social Accounts
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* X/Twitter */}
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-background/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-neutral-900 flex items-center justify-center text-white font-bold">
+                        𝕏
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No social activity today yet</p>
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'activity' && (
-          <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Activity Log - {today}</h3>
-            {todayActivities.length > 0 ? (
-              <div className="space-y-2">
-                {todayActivities.map((activity, i) => (
-                  <div 
-                    key={i} 
-                    className="flex items-start gap-4 p-4 bg-gray-900/50 rounded-xl hover:bg-gray-900/70 transition-colors"
-                  >
-                    <span className="text-lg">
-                      {activity.type === 'social' ? '📱' : 
-                       activity.type === 'build' ? '🔨' : 
-                       activity.type === 'research' ? '📚' : '📝'}
-                    </span>
-                    <div className="flex-1">
-                      <p className="text-white">{activity.description}</p>
-                      <div className="flex gap-3 mt-1">
-                        <span className="text-xs text-gray-500">{activity.time}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          activity.type === 'social' ? 'bg-blue-500/20 text-blue-400' :
-                          activity.type === 'build' ? 'bg-green-500/20 text-green-400' :
-                          activity.type === 'research' ? 'bg-purple-500/20 text-purple-400' :
-                          'bg-gray-500/20 text-gray-400'
-                        }`}>
-                          {activity.type}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No activities logged today yet</p>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'cron' && (
-          <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-6 border border-gray-700/50">
-            <h3 className="text-lg font-semibold text-white mb-4">Cron Jobs</h3>
-            {data?.cronJobs && data.cronJobs.length > 0 ? (
-              <div className="space-y-3">
-                {data.cronJobs.map((job, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-gray-900/50 rounded-xl">
-                    <div className="flex items-center gap-4">
-                      <span className={`w-3 h-3 rounded-full ${
-                        job.status === 'ok' ? 'bg-green-500' : 
-                        job.status === 'error' ? 'bg-red-500' : 'bg-yellow-500'
-                      }`} />
                       <div>
-                        <p className="text-white font-medium">{job.name}</p>
-                        <p className="text-xs text-gray-400">{job.schedule}</p>
+                        <p className="font-medium">{data?.social?.x?.handle || '@robhayesbuilds'}</p>
+                        <p className="text-xs text-muted-foreground">{data?.social?.x?.posts || 0} posts</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-300">{job.nextRun}</p>
-                      <p className="text-xs text-gray-500">{job.status}</p>
+                      <p className="text-2xl font-bold">{data?.social?.x?.followers || 0}</p>
+                      <p className="text-xs text-muted-foreground">followers</p>
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-500">No cron jobs configured</p>
-            )}
-          </div>
-        )}
+
+                  {/* Reddit */}
+                  <div className="flex items-center justify-between p-4 rounded-lg bg-background/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold">
+                        R
+                      </div>
+                      <div>
+                        <p className="font-medium">{data?.social?.reddit?.handle || 'u/AccordingTart4877'}</p>
+                        <p className="text-xs text-muted-foreground">{data?.social?.reddit?.comments || 0} comments</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold">{data?.social?.reddit?.karma || 0}</p>
+                      <p className="text-xs text-muted-foreground">karma</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Today's Highlights */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <span>✨</span> Today&apos;s Highlights
+                  </CardTitle>
+                  <CardDescription>Key accomplishments</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {data?.status?.todayHighlights && data.status.todayHighlights.length > 0 ? (
+                    <ul className="space-y-3">
+                      {data.status.todayHighlights.map((h, i) => (
+                        <li key={i} className="flex items-start gap-3 text-sm">
+                          <span className="text-primary mt-0.5">●</span>
+                          <span className="text-foreground/80">{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">No highlights yet today</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Activity */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span>🕐</span> Recent Activity
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {todayActivities.length > 0 ? (
+                  <div className="space-y-3">
+                    {todayActivities.slice(0, 5).map((activity, i) => (
+                      <ActivityItem key={i} activity={activity} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No activities logged today</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Tab */}
+          <TabsContent value="social" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* X Card */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-neutral-900 flex items-center justify-center text-white text-3xl font-bold">
+                      𝕏
+                    </div>
+                    <div>
+                      <CardTitle>Twitter / X</CardTitle>
+                      <CardDescription>{data?.social?.x?.handle}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="my-4" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 rounded-lg bg-background/50">
+                      <p className="text-3xl font-bold">{data?.social?.x?.followers || 0}</p>
+                      <p className="text-sm text-muted-foreground">Followers</p>
+                    </div>
+                    <div className="text-center p-4 rounded-lg bg-background/50">
+                      <p className="text-3xl font-bold">{data?.social?.x?.posts || 0}</p>
+                      <p className="text-sm text-muted-foreground">Posts</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Reddit Card */}
+              <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center text-white text-3xl font-bold">
+                      R
+                    </div>
+                    <div>
+                      <CardTitle>Reddit</CardTitle>
+                      <CardDescription>{data?.social?.reddit?.handle}</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Separator className="my-4" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 rounded-lg bg-background/50">
+                      <p className="text-3xl font-bold">{data?.social?.reddit?.karma || 0}</p>
+                      <p className="text-sm text-muted-foreground">Karma</p>
+                    </div>
+                    <div className="text-center p-4 rounded-lg bg-background/50">
+                      <p className="text-3xl font-bold">{data?.social?.reddit?.comments || 0}</p>
+                      <p className="text-sm text-muted-foreground">Comments</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Social Activity Feed */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg">Recent Social Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {socialActivities.length > 0 ? (
+                  <div className="space-y-3">
+                    {socialActivities.map((activity, i) => (
+                      <ActivityItem key={i} activity={activity} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No social activity today yet</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Activity Tab */}
+          <TabsContent value="activity">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span>📝</span> Activity Log
+                </CardTitle>
+                <CardDescription>{today}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {todayActivities.length > 0 ? (
+                  <div className="space-y-3">
+                    {todayActivities.map((activity, i) => (
+                      <ActivityItem key={i} activity={activity} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No activities logged today</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Cron Tab */}
+          <TabsContent value="cron">
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <span>⏰</span> Scheduled Jobs
+                </CardTitle>
+                <CardDescription>Automated tasks running in the background</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data?.cronJobs && data.cronJobs.length > 0 ? (
+                  <div className="space-y-3">
+                    {data.cronJobs.map((job, i) => (
+                      <CronJobRow key={i} job={job} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No cron jobs configured</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
