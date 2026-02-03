@@ -21,6 +21,12 @@ import {
   IconSparkles,
   IconLogout,
   IconRefresh,
+  IconExternalLink,
+  IconHistory,
+  IconHeart,
+  IconMessageCircle,
+  IconUserPlus,
+  IconAt,
 } from '@tabler/icons-react';
 
 interface Activity {
@@ -29,6 +35,22 @@ interface Activity {
   type: string;
   description: string;
   platform?: string;
+}
+
+interface SocialPost {
+  date: string;
+  time: string;
+  platform: 'x' | 'reddit';
+  type: 'post' | 'reply' | 'comment' | 'like' | 'follow' | 'join';
+  content: string;
+  link?: string;
+}
+
+interface CronRun {
+  name: string;
+  runAt: string;
+  status: 'ok' | 'error' | 'skipped';
+  note?: string;
 }
 
 interface DashboardData {
@@ -42,22 +64,25 @@ interface DashboardData {
     x: { handle: string; followers: number; posts: number; lastUpdated: string };
     reddit: { handle: string; karma: number; comments: number; lastUpdated: string };
   };
+  socialHistory: SocialPost[];
   cronJobs: Array<{
     name: string;
     schedule: string;
     nextRun: string;
     status: string;
   }>;
+  cronHistory: CronRun[];
 }
 
 function StatusDot({ status }: { status: string }) {
-  const colors = {
+  const colors: Record<string, string> = {
     ok: 'bg-emerald-500',
     error: 'bg-red-500',
     pending: 'bg-amber-500',
+    skipped: 'bg-gray-500',
   };
   return (
-    <span className={`inline-block w-2 h-2 rounded-full ${colors[status as keyof typeof colors] || colors.pending} animate-pulse`} />
+    <span className={`inline-block w-2 h-2 rounded-full ${colors[status] || colors.pending} animate-pulse`} />
   );
 }
 
@@ -84,13 +109,13 @@ function StatCard({ title, value, subtitle, icon }: {
 }
 
 function ActivityItem({ activity }: { activity: Activity }) {
-  const typeConfig = {
+  const typeConfig: Record<string, { icon: React.ReactNode; color: string }> = {
     social: { icon: <IconDeviceMobile className="w-5 h-5" />, color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
     build: { icon: <IconHammer className="w-5 h-5" />, color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
     research: { icon: <IconBook className="w-5 h-5" />, color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
     other: { icon: <IconNotes className="w-5 h-5" />, color: 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20' },
   };
-  const config = typeConfig[activity.type as keyof typeof typeConfig] || typeConfig.other;
+  const config = typeConfig[activity.type] || typeConfig.other;
   
   return (
     <div className="flex items-start gap-4 p-4 rounded-lg bg-card/30 hover:bg-card/50 transition-colors group">
@@ -103,7 +128,58 @@ function ActivityItem({ activity }: { activity: Activity }) {
           <Badge variant="outline" className={`text-xs ${config.color}`}>
             {activity.type}
           </Badge>
-          <span className="text-xs text-muted-foreground">{activity.time}</span>
+          <span className="text-xs text-muted-foreground">{activity.date} {activity.time}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SocialPostItem({ post }: { post: SocialPost }) {
+  const typeIcons: Record<string, React.ReactNode> = {
+    reply: <IconMessageCircle className="w-4 h-4" />,
+    comment: <IconMessageCircle className="w-4 h-4" />,
+    like: <IconHeart className="w-4 h-4" />,
+    follow: <IconUserPlus className="w-4 h-4" />,
+    join: <IconUserPlus className="w-4 h-4" />,
+    post: <IconAt className="w-4 h-4" />,
+  };
+  
+  const platformIcon = post.platform === 'reddit' 
+    ? <IconBrandReddit className="w-5 h-5 text-orange-500" />
+    : <IconBrandTwitter className="w-5 h-5" />;
+  
+  const typeColors: Record<string, string> = {
+    reply: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    comment: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+    like: 'bg-pink-500/10 text-pink-500 border-pink-500/20',
+    follow: 'bg-green-500/10 text-green-500 border-green-500/20',
+    join: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
+    post: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  };
+  
+  return (
+    <div className="flex items-start gap-4 p-4 rounded-lg bg-card/30 hover:bg-card/50 transition-colors">
+      <div className="flex-shrink-0">{platformIcon}</div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-foreground leading-relaxed">{post.content}</p>
+        <div className="flex items-center gap-2 mt-2 flex-wrap">
+          <Badge variant="outline" className={`text-xs ${typeColors[post.type] || ''}`}>
+            <span className="mr-1">{typeIcons[post.type]}</span>
+            {post.type}
+          </Badge>
+          <span className="text-xs text-muted-foreground">{post.date} {post.time}</span>
+          {post.link && (
+            <a 
+              href={post.link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:underline flex items-center gap-1"
+            >
+              <IconExternalLink className="w-3 h-3" />
+              View
+            </a>
+          )}
         </div>
       </div>
     </div>
@@ -126,6 +202,21 @@ function CronJobRow({ job }: { job: { name: string; schedule: string; nextRun: s
           {job.status}
         </Badge>
       </div>
+    </div>
+  );
+}
+
+function CronHistoryItem({ run }: { run: CronRun }) {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-lg bg-card/20 hover:bg-card/40 transition-colors">
+      <div className="flex items-center gap-3">
+        <StatusDot status={run.status} />
+        <div>
+          <p className="text-sm font-medium">{run.name}</p>
+          {run.note && <p className="text-xs text-muted-foreground">{run.note}</p>}
+        </div>
+      </div>
+      <span className="text-xs text-muted-foreground">{run.runAt}</span>
     </div>
   );
 }
@@ -311,8 +402,8 @@ export default function Dashboard() {
               />
               <StatCard
                 title="Social Posts"
-                value={socialActivities.length}
-                subtitle="X + Reddit engagement"
+                value={data?.socialHistory?.length || 0}
+                subtitle="Total X + Reddit"
                 icon={<IconDeviceMobile className="w-5 h-5" />}
               />
               <StatCard
@@ -322,9 +413,9 @@ export default function Dashboard() {
                 icon={<IconHammer className="w-5 h-5" />}
               />
               <StatCard
-                title="Active Crons"
-                value={data?.cronJobs?.length || 0}
-                subtitle="Scheduled jobs"
+                title="Cron Runs"
+                value={data?.cronHistory?.length || 0}
+                subtitle="Past executions"
                 icon={<IconClock className="w-5 h-5" />}
               />
             </div>
@@ -484,23 +575,24 @@ export default function Dashboard() {
               </Card>
             </div>
 
-            {/* Social Activity Feed */}
+            {/* Social History */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <IconActivity className="w-5 h-5" />
-                  Recent Social Activity
+                  <IconHistory className="w-5 h-5" />
+                  Social Activity History
                 </CardTitle>
+                <CardDescription>All posts, replies, comments, and follows</CardDescription>
               </CardHeader>
               <CardContent>
-                {socialActivities.length > 0 ? (
+                {data?.socialHistory && data.socialHistory.length > 0 ? (
                   <div className="space-y-3">
-                    {socialActivities.map((activity, i) => (
-                      <ActivityItem key={i} activity={activity} />
+                    {data.socialHistory.map((post, i) => (
+                      <SocialPostItem key={i} post={post} />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No social activity today yet</p>
+                  <p className="text-muted-foreground text-sm">No social activity recorded yet</p>
                 )}
               </CardContent>
             </Card>
@@ -514,31 +606,32 @@ export default function Dashboard() {
                   <IconNotes className="w-5 h-5" />
                   Activity Log
                 </CardTitle>
-                <CardDescription>{today}</CardDescription>
+                <CardDescription>Recent activities across all days</CardDescription>
               </CardHeader>
               <CardContent>
-                {todayActivities.length > 0 ? (
+                {data?.activities && data.activities.length > 0 ? (
                   <div className="space-y-3">
-                    {todayActivities.map((activity, i) => (
+                    {data.activities.map((activity, i) => (
                       <ActivityItem key={i} activity={activity} />
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No activities logged today</p>
+                  <p className="text-muted-foreground text-sm">No activities logged</p>
                 )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Cron Tab */}
-          <TabsContent value="cron">
+          <TabsContent value="cron" className="space-y-6">
+            {/* Active Jobs */}
             <Card className="bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <IconClock className="w-5 h-5" />
-                  Scheduled Jobs
+                  Active Cron Jobs
                 </CardTitle>
-                <CardDescription>Automated tasks running in the background</CardDescription>
+                <CardDescription>Scheduled tasks running automatically</CardDescription>
               </CardHeader>
               <CardContent>
                 {data?.cronJobs && data.cronJobs.length > 0 ? (
@@ -549,6 +642,28 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-sm">No cron jobs configured</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Run History */}
+            <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <IconHistory className="w-5 h-5" />
+                  Execution History
+                </CardTitle>
+                <CardDescription>Past cron job runs</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data?.cronHistory && data.cronHistory.length > 0 ? (
+                  <div className="space-y-2">
+                    {data.cronHistory.map((run, i) => (
+                      <CronHistoryItem key={i} run={run} />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No execution history found</p>
                 )}
               </CardContent>
             </Card>
